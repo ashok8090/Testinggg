@@ -20,6 +20,7 @@ import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
+import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
@@ -52,11 +53,8 @@ class MainActivity : FlutterActivity() {
 
     override fun provideFlutterEngine(context: Context): FlutterEngine? {
         FlutterEngineCache.getInstance().get(engineId)?.let { return it }
-        // Do NOT run Dart here. FlutterActivity starts the entrypoint only after
-        // plugins are registered and the FlutterView exists. Starting it now paints
-        // the first frame into nothing, and Android never gets the signal to leave
-        // the launch screen — the phone stays on the black/logo splash forever.
         val engine = FlutterEngine(context.applicationContext)
+        engine.dartExecutor.executeDartEntrypoint(DartExecutor.DartEntrypoint.createDefault())
         FlutterEngineCache.getInstance().put(engineId, engine)
         return engine
     }
@@ -68,15 +66,6 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         PageSyncService.activityAlive = true
-        // Android 12+ system splash (black + icon on several phones) must not
-        // play an exit animation that covers the first Flutter frame.
-        if (Build.VERSION.SDK_INT >= 31) {
-            try {
-                splashScreen.setOnExitAnimationListener { it.remove() }
-            } catch (e: Throwable) {
-                Log.w("Granth", "splash exit: $e")
-            }
-        }
         super.onCreate(savedInstanceState)
     }
 
