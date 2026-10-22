@@ -25,12 +25,12 @@ void main() {
     // Every init step is guarded: an exception or a hang here must never stop runApp,
     // otherwise the phone stays on the native launch screen forever.
     try {
-      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).timeout(const Duration(seconds: 2));
+      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).timeout(const Duration(seconds: 1));
     } catch (e) {
       debugPrint('init: orientation: $e');
     }
     try {
-      await Store.I.init().timeout(const Duration(seconds: 6));
+      await Store.I.init().timeout(const Duration(seconds: 4));
     } catch (e) {
       debugPrint('init: store: $e');
     }
