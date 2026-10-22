@@ -13,9 +13,9 @@ class AnimatedSplash extends StatefulWidget {
     super.key,
     required this.child,
     this.ready,
-    this.duration = const Duration(milliseconds: 1600),
-    this.maxWait = const Duration(milliseconds: 1800),
-    this.hardLimit = const Duration(milliseconds: 2500),
+    this.duration = const Duration(milliseconds: 1900),
+    this.maxWait = const Duration(milliseconds: 2600),
+    this.hardLimit = const Duration(milliseconds: 3500),
   });
   final Widget child;
 
