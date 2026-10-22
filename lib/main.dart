@@ -18,46 +18,54 @@ import 'theme/colors.dart';
 import 'widgets/zoom.dart';
 
 void main() {
-  runZonedGuarded<Future<void>>(() async {
+  runZonedGuarded(() {
     WidgetsFlutterBinding.ensureInitialized();
     _installErrorHandlers();
-    Future<void> boot = Future<void>.value();
-    // Every init step is guarded: an exception or a hang here must never stop runApp,
-    // otherwise the phone stays on the native launch screen forever.
-    try {
-      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).timeout(const Duration(seconds: 1));
-    } catch (e) {
-      debugPrint('init: orientation: $e');
-    }
-    try {
-      await Store.I.init().timeout(const Duration(seconds: 4));
-    } catch (e) {
-      debugPrint('init: store: $e');
-    }
-    // Not awaited for long: both only tune / tidy, the app works without them.
-    try {
-      await Future.wait([DeviceProfile.load(), FileActions.cleanupPartials()]).timeout(const Duration(seconds: 2));
-    } catch (e) {
-      debugPrint('init: profile/cleanup: $e');
-    }
-    try {
-      AppNav.I.restore();
-    } catch (e) {
-      debugPrint('init: restore: $e');
-    }
-    try {
-      EventLog.I.log('app_open', 'app');
-    } catch (_) {}
-    try {
-      // The catalog loads in the background; the splash never waits for the network.
-      boot = CatalogStore.I.boot().catchError((Object e, StackTrace st) => debugPrint('boot: $e\n$st'));
-    } catch (e) {
-      debugPrint('init: boot: $e');
-    }
-    runApp(GranthApp(ready: boot));
+    // The native launch screen stays up until the first Flutter frame.
+    // Awaiting prefs, orientation or the network *before* runApp is what
+    // left the phone sitting on the black/logo splash.
+    runApp(GranthApp(ready: _open()));
   }, (error, stack) {
     debugPrint('Uncaught: $error\n$stack');
   });
+}
+
+/// Store, last screen and catalog. None of this is allowed to block the first frame.
+Future<void> _open() async {
+  try {
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).timeout(const Duration(seconds: 1));
+  } catch (e) {
+    debugPrint('init: orientation: $e');
+  }
+  try {
+    await Store.I.init().timeout(const Duration(seconds: 4));
+  } catch (e) {
+    debugPrint('init: store: $e');
+  }
+  try {
+    // Preferences may have arrived after the first frame; apply them now.
+    UiPrefs.I.refresh(start: true);
+  } catch (e) {
+    debugPrint('init: prefs: $e');
+  }
+  try {
+    await Future.wait([DeviceProfile.load(), FileActions.cleanupPartials()]).timeout(const Duration(seconds: 2));
+  } catch (e) {
+    debugPrint('init: profile/cleanup: $e');
+  }
+  try {
+    AppNav.I.restore();
+  } catch (e) {
+    debugPrint('init: restore: $e');
+  }
+  try {
+    EventLog.I.log('app_open', 'app');
+  } catch (_) {}
+  try {
+    await CatalogStore.I.boot();
+  } catch (e, st) {
+    debugPrint('boot: $e\n$st');
+  }
 }
 
 void _installErrorHandlers() {
