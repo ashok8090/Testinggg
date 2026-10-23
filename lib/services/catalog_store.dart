@@ -865,7 +865,7 @@ class CatalogStore extends ChangeNotifier {
       }
     }
     final key = '${all.length}-$h';
-    if (Store.I.getString(Store.kOfflineReady) == key || offlineReady.value?.signature == key) return;
+    if (Store.I.getString(Store.kOfflineCardShown) == '1' || Store.I.getString(Store.kOfflineReady) == key || offlineReady.value?.signature == key) return;
     var bytes = 0;
     for (final p in all) {
       try {
@@ -881,6 +881,7 @@ class CatalogStore extends ChangeNotifier {
     final r = offlineReady.value;
     if (r == null) return;
     Store.I.setString(Store.kOfflineReady, r.signature);
+    Store.I.setString(Store.kOfflineCardShown, '1');
     offlineReady.value = null;
   }
 

@@ -835,18 +835,22 @@ class Entry extends StatefulWidget {
 
 class _EntryState extends State<Entry> with SingleTickerProviderStateMixin {
   late final AnimationController _c;
-  late final Animation<double> _a;
+  late final Animation<double> _scale;
+  late final Animation<double> _fade;
 
   @override
   void initState() {
     super.initState();
-    final i = widget.index.clamp(0, 12);
-    _c = AnimationController(vsync: this, duration: Duration(milliseconds: 380 + i * 45));
-    _a = CurvedAnimation(parent: _c, curve: Interval(i * 45 / (380 + i * 45), 1, curve: Curves.easeOutCubic));
-    if (widget.index > 12) {
+    final i = widget.index.clamp(0, 8);
+    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
+    _scale = CurvedAnimation(parent: _c, curve: Curves.easeOutBack);
+    _fade = CurvedAnimation(parent: _c, curve: const Interval(0.0, 0.7, curve: Curves.easeOut));
+    if (widget.index > 8) {
       _c.value = 1;
     } else {
-      _c.forward();
+      Future.delayed(Duration(milliseconds: i * 40), () {
+        if (mounted) _c.forward();
+      });
     }
   }
 
@@ -858,14 +862,19 @@ class _EntryState extends State<Entry> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: _a,
+        animation: _c,
         child: widget.child,
         builder: (context, child) {
-          final t = _a.value;
-          if (t >= 1) return child!;
+          final s = _scale.value;
+          final f = _fade.value;
+          if (s >= 1 && f >= 1) return child!;
           return Opacity(
-            opacity: t,
-            child: Transform.translate(offset: Offset(widget.dx * (1 - t), 18 * (1 - t)), child: child),
+            opacity: f.clamp(0.0, 1.0),
+            child: Transform.scale(
+              scale: s.clamp(0.0, 1.15),
+              alignment: Alignment.center,
+              child: Transform.translate(offset: Offset(widget.dx * (1 - f), 12 * (1 - f)), child: child),
+            ),
           );
         },
       );

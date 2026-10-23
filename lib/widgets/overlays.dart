@@ -23,15 +23,17 @@ Future<T?> showPop<T>(BuildContext context, WidgetBuilder builder, {bool dismiss
       ),
     ),
     transitionBuilder: (ctx, a, b, child) {
-      final rise = CurvedAnimation(parent: a, curve: kRise, reverseCurve: Curves.easeIn);
+      final t = CurvedAnimation(parent: a, curve: const Cubic(0.22, 1, 0.36, 1), reverseCurve: Curves.easeIn).value;
       return FadeTransition(
-        opacity: CurvedAnimation(parent: a, curve: const Interval(0, 0.8)),
-        child: AnimatedBuilder(
-          animation: rise,
-          child: child,
-          builder: (context, child) => Transform.translate(
-            offset: Offset(0, 18 * (1 - rise.value)),
-            child: Transform.scale(scale: 0.98 + 0.02 * rise.value, child: child),
+        opacity: CurvedAnimation(parent: a, curve: const Interval(0, 0.85)),
+        child: ImageFiltered(
+          imageFilter: ui.ImageFilter.blur(
+            sigmaX: 12 * (1 - t),
+            sigmaY: 12 * (1 - t),
+          ),
+          child: Transform.translate(
+            offset: Offset(0, 16 * (1 - t)),
+            child: Transform.scale(scale: 0.96 + 0.04 * t, child: child),
           ),
         ),
       );

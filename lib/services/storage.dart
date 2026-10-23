@@ -39,6 +39,7 @@ class Store {
 
   /// Signature of the last library the "सारे ग्रंथ ऑफलाइन" card was shown for.
   static const kOfflineReady = 'granth-offline-ready';
+  static const kOfflineCardShown = 'granth-offline-card-shown';
 
   /// Notification permission asked once (first PDF).
   static const kNotifAsked = 'granth-notif-asked';

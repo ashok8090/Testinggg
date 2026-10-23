@@ -256,7 +256,7 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
                   final total = s.topics.length + s.granths.length + s.pramans.length;
                   return CustomScrollView(
                     controller: _scroll,
-                    physics: const ClampingScrollPhysics(),
+                    physics: const ClampingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                     slivers: [
                       SliverToBoxAdapter(
                         child: _Mast(deckOpen: _deckOpen, onDeck: () => _openDeck(0), link: _deckLink),

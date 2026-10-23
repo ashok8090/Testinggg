@@ -102,13 +102,21 @@ class GranthCard extends StatefulWidget {
   State<GranthCard> createState() => _GranthCardState();
 }
 
-class _GranthCardState extends State<GranthCard> with SingleTickerProviderStateMixin {
+class _GranthCardState extends State<GranthCard> with TickerProviderStateMixin {
   late final AnimationController _open = AnimationController(vsync: this, duration: const Duration(milliseconds: 260));
+  late final AnimationController _inner = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _inner.forward();
+  }
 
   @override
   void dispose() {
     _open.dispose();
+    _inner.dispose();
     super.dispose();
   }
 
@@ -179,43 +187,58 @@ class _GranthCardState extends State<GranthCard> with SingleTickerProviderStateM
                   );
               final paths = [g.imagePath, g.editorImagePath].map(mediaPath).whereType<String>().toList();
               return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(g.title, maxLines: tiny ? 4 : null, overflow: tiny ? TextOverflow.ellipsis : null, style: GText.script(size: titleSize, color: GColors.maroon)),
+                FadeTransition(
+                  opacity: CurvedAnimation(parent: _inner, curve: const Interval(0.0, 0.7, curve: Curves.easeOut)),
+                  child: Text(g.title, maxLines: tiny ? 4 : null, overflow: tiny ? TextOverflow.ellipsis : null, style: GText.script(size: titleSize, color: GColors.maroon)),
+                ),
                 if (g.author.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Padding(padding: const EdgeInsets.only(top: 2), child: GIcon('pen-line', size: 14, color: GColors.saffronDark)),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(g.author,
-                            maxLines: tiny ? 2 : null,
-                            overflow: tiny ? TextOverflow.ellipsis : null,
-                            style: GText.sans(size: authorSize, weight: FontWeight.w700, color: GColors.saffronDark)),
-                      ),
-                    ]),
+                  FadeTransition(
+                    opacity: CurvedAnimation(parent: _inner, curve: const Interval(0.15, 0.8, curve: Curves.easeOut)),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Padding(padding: const EdgeInsets.only(top: 2), child: GIcon('pen-line', size: 14, color: GColors.saffronDark)),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(g.author,
+                              maxLines: tiny ? 2 : null,
+                              overflow: tiny ? TextOverflow.ellipsis : null,
+                              style: GText.sans(size: authorSize, weight: FontWeight.w700, color: GColors.saffronDark)),
+                        ),
+                      ]),
+                    ),
                   ),
                 if (g.description.isNotEmpty)
-                  Padding(padding: const EdgeInsets.only(top: 8), child: Text(g.description, style: GText.sans(size: 14, color: GColors.muted, height: 1.55))),
-                GranthImage(
-                  path: g.imagePath,
-                  kind: ShotKind.cover,
-                  heroTag: heroTag,
-                  onView: paths.isEmpty ? null : () => openLightbox(context, paths, heroTag: heroTag),
-                  save: SaveMeta(title: g.title, text: g.description, granth: g.title),
+                  FadeTransition(
+                    opacity: CurvedAnimation(parent: _inner, curve: const Interval(0.25, 0.85, curve: Curves.easeOut)),
+                    child: Padding(padding: const EdgeInsets.only(top: 8), child: Text(g.description, style: GText.sans(size: 14, color: GColors.muted, height: 1.55))),
+                  ),
+                FadeTransition(
+                  opacity: CurvedAnimation(parent: _inner, curve: const Interval(0.35, 0.9, curve: Curves.easeOut)),
+                  child: GranthImage(
+                    path: g.imagePath,
+                    kind: ShotKind.cover,
+                    heroTag: heroTag,
+                    onView: paths.isEmpty ? null : () => openLightbox(context, paths, heroTag: heroTag),
+                    save: SaveMeta(title: g.title, text: g.description, granth: g.title),
+                  ),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(top: 12),
-                  padding: const EdgeInsets.only(top: 12),
-                  width: double.infinity,
-                  decoration: const BoxDecoration(border: Border(top: BorderSide(color: GColors.creamDark))),
-                  child: Wrap(spacing: 8, runSpacing: 8, children: [
-                    if (s > 0) pill('$s प्रमाण', icon: 'image', tone: PillTone.maroon, onTap: _go),
-                    pill('${widget.index}/${widget.total}', icon: 'library'),
-                    pill('Share', icon: 'share-2', onTap: () => FileActions.shareText(g.title, shareLink('granth', g.id))),
-                    if (url.isNotEmpty) pill('Original PDF', onTap: () => FileActions.openUrl(url)),
-                    pill('हाईलाइट PDF', tone: PillTone.maroon, onTap: () => askPdf(context, GranthPdfRequest(g))),
-                    if (offline) pill('ऑफलाइन'),
-                  ]),
+                FadeTransition(
+                  opacity: CurvedAnimation(parent: _inner, curve: const Interval(0.5, 1.0, curve: Curves.easeOut)),
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    padding: const EdgeInsets.only(top: 12),
+                    width: double.infinity,
+                    decoration: const BoxDecoration(border: Border(top: BorderSide(color: GColors.creamDark))),
+                    child: Wrap(spacing: 8, runSpacing: 8, children: [
+                      if (s > 0) pill('$s प्रमाण', icon: 'image', tone: PillTone.maroon, onTap: _go),
+                      pill('${widget.index}/${widget.total}', icon: 'library'),
+                      pill('Share', icon: 'share-2', onTap: () => FileActions.shareText(g.title, shareLink('granth', g.id))),
+                      if (url.isNotEmpty) pill('Original PDF', onTap: () => FileActions.openUrl(url)),
+                      pill('हाईलाइट PDF', tone: PillTone.maroon, onTap: () => askPdf(context, GranthPdfRequest(g))),
+                      if (offline) pill('ऑफलाइन'),
+                    ]),
+                  ),
                 ),
               ]);
             }),

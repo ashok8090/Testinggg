@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -120,30 +121,33 @@ class _AnimatedSplashState extends State<AnimatedSplash> with TickerProviderStat
           final title = Curves.easeOutCubic.transform(((v - 0.55) / 0.4).clamp(0, 1));
           return IgnorePointer(
             ignoring: _out.value > 0.3,
-            child: Opacity(
-              opacity: 1 - o,
-              child: Container(
-                color: Colors.white,
-                alignment: Alignment.center,
-                child: Transform.scale(
-                  scale: 1 + 0.35 * o,
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(36),
-                        boxShadow: [BoxShadow(color: GColors.saffron.withValues(alpha: 0.45 * glow), blurRadius: 48 * glow, spreadRadius: 6 * glow)],
+            child: ImageFiltered(
+              imageFilter: ui.ImageFilter.blur(sigmaX: 8 * o, sigmaY: 8 * o),
+              child: Opacity(
+                opacity: 1 - o,
+                child: Container(
+                  color: Colors.white,
+                  alignment: Alignment.center,
+                  child: Transform.scale(
+                    scale: 1 + 0.35 * o,
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(36),
+                          boxShadow: [BoxShadow(color: GColors.saffron.withValues(alpha: 0.45 * glow), blurRadius: 48 * glow, spreadRadius: 6 * glow)],
+                        ),
+                        child: Transform.scale(scale: 0.6 + 0.4 * pop, child: LogoIcon(size: 144, progress: beads)),
                       ),
-                      child: Transform.scale(scale: 0.6 + 0.4 * pop, child: LogoIcon(size: 144, progress: beads)),
-                    ),
-                    const SizedBox(height: 28),
-                    Opacity(
-                      opacity: title,
-                      child: Transform.translate(
-                        offset: Offset(0, 16 * (1 - title)),
-                        child: Text('ग्रंथ प्रबंधन', style: GText.display(size: 34, color: GColors.maroon, letterSpacing: 0.5)),
+                      const SizedBox(height: 28),
+                      Opacity(
+                        opacity: title,
+                        child: Transform.translate(
+                          offset: Offset(0, 16 * (1 - title)),
+                          child: Text('ग्रंथ प्रबंधन', style: GText.display(size: 42, color: GColors.maroon, letterSpacing: 0.4)),
+                        ),
                       ),
-                    ),
-                  ]),
+                    ]),
+                  ),
                 ),
               ),
             ),
